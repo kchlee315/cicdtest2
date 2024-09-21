@@ -2,13 +2,13 @@ pipeline {
     agent any
 
     environment {
-        AWS_ACCOUNT_ID = "your-aws-account-id"
-        AWS_REGION = "your-aws-region"
+        AWS_ACCOUNT_ID = "882246222011"
+        AWS_REGION = "ap-northeast-2"
         ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
         IMAGE_NAME = "python-web-app"
         IMAGE_TAG = "${BUILD_NUMBER}"
         HELM_CHART_PATH = "helm/python-web-app"  // Helm 차트 경로 (저장소 내)
-        GIT_REPO_URL = "https://github.com/your-username/your-python-web-app.git"
+        GIT_REPO_URL = "https://github.com/kchlee315/cicdtest2"
     }
 
     stages {
