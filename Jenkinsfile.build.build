@@ -1,0 +1,77 @@
+pipeline {
+    agent any
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10', daysToKeepStr: '30', artifactNumToKeepStr: '3'))
+    }
+    parameters {
+        // 빌드 파라미터로 추가
+        string(name: 'USER_NAME', defaultValue: 'changhoon', description: 'User name for the Docker image')
+        string(name: 'AWS_ACCOUNT_ID', defaultValue: '882246222011', description: 'AWS Account ID')
+    }
+
+    environment {
+        // // 안에 값을 변경해주세요
+        // USER_NAME = 'changhoon'
+        // AWS_ACCOUNT_ID = '882246222011'
+
+        // 파라미터를 사용하여 값 설정
+        USER_NAME = "${params.USER_NAME}"
+        AWS_ACCOUNT_ID = "${params.AWS_ACCOUNT_ID}"
+
+        DOCKER_IMAGE = "${USER_NAME}-ecr-repo"
+        AWS_DEFAULT_REGION = 'ap-northeast-2'
+        REPOSITORY_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${DOCKER_IMAGE}"
+        IMAGE_TAG = "latest"
+    }
+
+//    stages {
+//        stage('Build Docker image') {
+//            when {
+//                // User_Name 이 특정값 일 때만 실행
+//                expression { params.USER_NAME == 'changhoon' }
+//            }
+//            steps {
+//                script {
+//                    // 조건에 따라서 동적으로 스크립트 실행 
+//                    if(params.USER_NAME == 'changhoon' ){
+//                        docker.build("${REPOSITORY_URI}:${IMAGE_TAG}", "-f docker/Dockerfile.dockerfile .")
+//                    }
+//                }
+//            }
+//        }
+
+//        stage('Push to AWS ECR') {
+//            steps {
+//                script {
+//                    sh "aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
+//                    docker.image("${REPOSITORY_URI}:${IMAGE_TAG}".toString()).push()
+//                }
+//            }
+//        }
+//   }
+
+     stages {
+         stage('Build two Service') {
+             steps {
+                 script {
+                     parallel(
+                         service1: {
+                             // service1 이미지를 빌드하고 푸시하는 작업
+                             docker.build("${REPOSITORY_URI}:${IMAGE_TAG}", "-f docker/Dockerfile.dockerfile .")
+                             sh "aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
+                             docker.image("${REPOSITORY_URI}:${IMAGE_TAG}".toString()).push()
+                         },
+                         service2: {
+                             // service2 이미지를 빌드하고 푸시하는 작업
+                             docker.build("${REPOSITORY_URI}:${IMAGE_TAG}", "-f docker/Dockerfile.dockerfile .")
+                             sh "aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
+                             docker.image("${REPOSITORY_URI}:${IMAGE_TAG}".toString()).push()
+                         }
+                     )
+                 }
+             }
+         }
+     }
+}
+
