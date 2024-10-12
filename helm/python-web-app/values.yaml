@@ -6,7 +6,7 @@ replicaCount: 1
 
 image:
   repository: 
-     {882246222011.dkr.ecr.ap-northeast-2.amazonaws.com/python-web-app}
+     {882246222011.dkr.ecr.ap-northeast-2.amazonaws.com/changhoon-ecr-repo}
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
