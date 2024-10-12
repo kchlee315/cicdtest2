@@ -12,11 +12,11 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                git "${GIT_REPO_URL}"
-            }
-        }
+       # stage('Checkout') {
+       #     steps {
+       #         git "${GIT_REPO_URL}"
+       #     }
+       # }
 
         stage('Build Docker Image') {
             steps {
